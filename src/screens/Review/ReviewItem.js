@@ -1,124 +1,75 @@
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import React, {memo} from 'react';
+import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, {memo, useContext} from 'react';
 import {COLORS} from '../../constants/Colors';
-import {STRING} from '../../constants';
+import {AirbnbRating} from 'react-native-elements';
+import GlobalStyle from '../../styles/GlobalStyle';
+import themeContext from '../../constants/themeContext';
 
-const TransactionItem = ({item, show}) => {
+const ReviewItem = ({item, show}) => {
+  const theme = useContext(themeContext);
   return (
     <TouchableOpacity
       activeOpacity={0.9}
-      style={[styles.wrapper]}
+      style={[
+        styles.wrapper,
+        {
+          backgroundColor: theme?.colors?.wrapper,
+        },
+      ]}
       onPress={() => {}}>
-      <Text
-        style={{
-          fontFamily: 'OpenSans-Regular',
-          fontSize: 14,
-          color: COLORS.black,
-        }}>
-        ID : 152
-      </Text>
-      <View
-        style={{
-          height: 0.5,
-          backgroundColor: COLORS.light_gray,
-          marginVertical: 5,
-        }}
-      />
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginTop: 5,
-          justifyContent: 'space-between',
-        }}>
-        <Text
+      <View style={GlobalStyle.flexRowAlignCenter}>
+        <Image
+          source={{
+            uri: item?.image,
+          }}
+          style={styles.itemImage}
+        />
+        <View
           style={{
-            fontFamily: 'OpenSans-Medium',
-            fontSize: 14,
-            color: COLORS.colorPrimary,
+            flex: 1,
           }}>
-          Payment Mode
-        </Text>
-        <Text
-          style={{
-            fontFamily: 'OpenSans-Medium',
-            fontSize: 14,
-            color: COLORS.white,
-            backgroundColor: COLORS.light_green,
-            paddingHorizontal: 10,
-            paddingVertical: 1,
-            borderRadius: 3,
-            textAlign: 'center',
-            textAlignVertical: 'center',
-          }}>
-          {STRING.status}
-        </Text>
-      </View>
-
-      <View
-        style={{
-          flexDirection: 'row',
-          marginTop: 5,
-          justifyContent: 'space-between',
-        }}>
-        <View>
           <Text
-            style={{
-              fontFamily: 'OpenSans-Regular',
-              fontSize: 14,
-              color: COLORS.grey,
-            }}>
-            {STRING.transaction_date_and_time}
+            style={[
+              styles.itemName,
+              {
+                color: theme?.colors?.white,
+              },
+            ]}>
+            {item?.name}
           </Text>
-          <Text
-            style={{
-              fontFamily: 'OpenSans-Regular',
-              fontSize: 14,
-              color: COLORS.grey,
-            }}>
-            25-10-2023 02:56 Pm
-          </Text>
+          <Text style={styles.dateTime}>{item?.date}</Text>
         </View>
-        <Text
-          style={{
-            fontFamily: 'OpenSans-Medium',
-            fontSize: 14,
-            color: COLORS.colorPrimary,
-          }}>
-          {STRING.amount_} ₹120
-        </Text>
+        <AirbnbRating
+          count={5}
+          isDisabled={true}
+          showRating={false}
+          defaultRating={item?.star}
+          size={10}
+          starContainerStyle={{
+            marginStart: 15,
+          }}
+        />
       </View>
-
+      <View style={styles.divLine} />
       <Text
-        style={{
-          fontFamily: 'OpenSans-Regular',
-          fontSize: 14,
-          marginTop: 5,
-          color: COLORS.grey,
-        }}>
-        {STRING.message}
-      </Text>
-      <Text
-        style={{
-          fontFamily: 'OpenSans-Regular',
-          fontSize: 14,
-          color: COLORS.grey,
-          marginTop: 2,
-        }}>
-        In publishing and graphic design, Lorem ipsum is a placeholder text
+        style={[
+          styles.reviewText,
+          {
+            color: theme?.colors?.textColor,
+          },
+        ]}>
+        {item?.message}
       </Text>
     </TouchableOpacity>
   );
 };
 
-export default memo(TransactionItem);
+export default memo(ReviewItem);
 
 const styles = StyleSheet.create({
   wrapper: {
     backgroundColor: COLORS.white,
-    paddingTop: 10,
-    paddingBottom: 10,
-    paddingHorizontal: 10,
+    padding: 10,
   },
   text: {
     maxHeight: 35,
@@ -134,5 +85,33 @@ const styles = StyleSheet.create({
     fontSize: 12,
     letterSpacing: 0.5,
     textTransform: 'uppercase',
+  },
+  itemImage: {
+    height: 40,
+    width: 40,
+    borderRadius: 5,
+    marginEnd: 5,
+    marginBottom: 5,
+  },
+  itemName: {
+    fontFamily: 'OpenSans-Medium',
+    fontSize: 14,
+    color: COLORS.dark_gray,
+  },
+  dateTime: {
+    fontFamily: 'OpenSans-Regular',
+    fontSize: 10,
+    color: COLORS.grey,
+    marginVertical: 2,
+  },
+  divLine: {
+    height: 2,
+    backgroundColor: COLORS.light_gray,
+  },
+  reviewText: {
+    fontFamily: 'OpenSans-Regular',
+    fontSize: 13,
+    color: COLORS.txt_color,
+    marginTop: 4,
   },
 });

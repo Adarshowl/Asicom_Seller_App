@@ -1,55 +1,71 @@
-import {Image, StyleSheet, Text, TouchableOpacity} from 'react-native';
-import React, {memo} from 'react';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, {memo, useContext} from 'react';
 import {COLORS} from '../../constants/Colors';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import GlobalStyle from '../../styles/GlobalStyle';
+import themeContext from '../../constants/themeContext';
 
-const NotificationItem = ({item, show}) => {
+const FaqItem = ({item, show, onClick}) => {
+  const theme = useContext(themeContext);
   return (
-    <TouchableOpacity
-      activeOpacity={0.9}
-      style={[styles.wrapper]}
-      onPress={() => {}}>
-      {show ? (
-        <Image
-          source={{
-            uri: 'https://images.pexels.com/photos/7225580/pexels-photo-7225580.jpeg?auto=compress&cs=tinysrgb&w=600',
-          }}
+    <View
+      style={[
+        styles.wrapper,
+        {
+          backgroundColor: theme?.colors?.wrapper,
+        },
+      ]}>
+      <TouchableOpacity
+        onPress={onClick}
+        activeOpacity={1.0}
+        style={[
+          GlobalStyle.flexRowAlignCenter,
+          GlobalStyle.flexRowJustifyBtwn,
+        ]}>
+        <Text
+          style={[
+            styles.quesText,
+            {
+              color: theme?.colors?.white,
+            },
+          ]}>
+          {item?.ques}
+        </Text>
+        <AntDesign
+          name={item?.selected ? 'minus' : 'plus'}
+          color={theme?.colors?.white}
+          size={15}
+          onPress={onClick}
           style={{
-            flex: 1,
-            height: 250,
+            paddingHorizontal: 5,
           }}
         />
+        {/*<AntDesign name={'minus'} color={COLORS.black} size={15} />*/}
+      </TouchableOpacity>
+      {item?.selected ? (
+        <Text
+          style={[
+            styles.answerText,
+            {
+              color: theme?.colors?.textColor,
+            },
+          ]}>
+          {item?.ans}
+        </Text>
       ) : null}
-      <Text
-        style={{
-          fontFamily: 'OpenSans-Regular',
-          fontSize: 14,
-          color: COLORS.black,
-          marginTop: show ? 5 : 0,
-        }}>
-        Morning 9 am to 12 pm
-      </Text>
-
-      <Text
-        style={{
-          fontFamily: 'OpenSans-Regular',
-          fontSize: 14,
-          color: COLORS.grey,
-        }}>
-        Morning
-      </Text>
-    </TouchableOpacity>
+    </View>
   );
 };
 
-export default memo(NotificationItem);
+export default memo(FaqItem);
 
 const styles = StyleSheet.create({
   wrapper: {
     backgroundColor: COLORS.white,
     marginHorizontal: 10,
     marginVertical: 5,
-    paddingVertical: 5,
-    paddingHorizontal: 5,
+    paddingVertical: 8,
+    paddingHorizontal: 8,
     borderRadius: 5,
   },
   text: {
@@ -66,5 +82,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     letterSpacing: 0.5,
     textTransform: 'uppercase',
+  },
+  answerText: {
+    fontFamily: 'OpenSans-Regular',
+    fontSize: 14,
+    color: COLORS.black,
+    marginTop: 10,
+  },
+  quesText: {
+    fontFamily: 'OpenSans-SemiBold',
+    fontSize: 14,
+    color: COLORS.black,
+    flex: 1,
   },
 });

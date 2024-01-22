@@ -1,5 +1,5 @@
 import {
-  Image,
+  I18nManager,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -19,8 +19,10 @@ import '../../assets/i18n/i18n';
 import {EventRegister} from 'react-native-event-listeners';
 import themeContext from '../../constants/themeContext';
 import {Switch} from 'react-native-elements';
+import {languageRestart} from '../../../App';
+import Octicons from 'react-native-vector-icons/Octicons';
 
-const Theme = ({navigation}) => {
+const RTL = ({navigation}) => {
   const theme = useContext(themeContext);
   const [favData, setFavData] = useState([
     {name: 'Light', code: 'light', selected: false},
@@ -142,7 +144,7 @@ const Theme = ({navigation}) => {
           }}
         />
         <VegUrbanCommonToolBar
-          title={STRING.theme + ' Changer'}
+          title={'RTL Feature'}
           style={{
             backgroundColor: theme.colors.bg_color_onBoard,
           }}
@@ -167,16 +169,11 @@ const Theme = ({navigation}) => {
       {/*  data={favData}*/}
       {/*  renderItem={renderItem}*/}
       {/*/>*/}
-
-      <Image
-        source={{
-          uri: lightMode
-            ? 'https://cdn-icons-png.flaticon.com/128/702/702814.png'
-            : 'https://cdn-icons-png.flaticon.com/128/566/566461.png',
-        }}
+      <Octicons
+        name={'arrow-switch'}
+        size={50}
+        color={COLORS.black}
         style={{
-          height: 100,
-          width: 100,
           alignSelf: 'center',
           marginVertical: 50,
         }}
@@ -191,27 +188,22 @@ const Theme = ({navigation}) => {
             marginVertical: 20,
           },
         ]}>
-        Lights are {lightMode ? 'off!!' : 'on!!'}
+        RTL Feature {I18nManager.isRTL ? 'on!!' : 'off!!'}
       </Text>
       <Switch
         style={{
           alignSelf: 'center',
         }}
-        value={!lightMode}
+        value={I18nManager.isRTL}
         onValueChange={value => {
-          setLightMode(prev => !prev);
-          EventRegister.emit(STRING.app_theme, lightMode ? false : true);
-          AsyncStorage.setItem(
-            STRING.app_theme,
-            lightMode ? false + '' : true + '',
-          );
+          languageRestart();
         }}
       />
     </SafeAreaView>
   );
 };
 
-export default Theme;
+export default RTL;
 
 const styles = StyleSheet.create({
   wrapper: {

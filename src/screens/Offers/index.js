@@ -1,22 +1,24 @@
 import {
   FlatList,
-  Image,
+  Modal,
   SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import GlobalStyle from '../../styles/GlobalStyle';
-import {images, SIZES, STRING} from '../../constants';
+import {SIZES, STRING} from '../../constants';
 import VegUrbanCommonToolBar from '../../utils/VegUrbanCommonToolBar';
 import ToolBarIcon from '../../utils/ToolBarIcon';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {COLORS} from '../../constants/Colors';
-import AntDesign from 'react-native-vector-icons/AntDesign';
+import {ShowToastMessage} from '../../utils/Utility';
+import themeContext from '../../constants/themeContext';
 
-const Favorite = ({navigation}) => {
+const Offers = ({navigation}) => {
+  const theme = useContext(themeContext);
   const onFavClick = idx => {
     let a = favData.map((item, index) => {
       let temp = Object.assign({}, item);
@@ -33,108 +35,416 @@ const Favorite = ({navigation}) => {
 
   const [favData, setFavData] = useState([
     {
-      name: 'test 1',
-      image:
-        'https://t4.ftcdn.net/jpg/02/71/66/91/360_F_271669174_2dHs4FO3SV83lQ4MjswEBa4LQTGjMO4E.jpg',
-      price: '₹120.00',
-      old: '₹100.00',
-      rate: '2',
-      qty: '2 kg',
-      sold: '1.2k',
-      fav: true,
+      title: '1st order',
+      dis: '50',
+      above: `on order above ${STRING.APP_CURRENCY}340`,
+      code: '45FS#5',
     },
     {
-      name: 'test 2',
-      image:
-        'https://media.istockphoto.com/id/185284489/photo/orange.jpg?s=612x612&w=0&k=20&c=m4EXknC74i2aYWCbjxbzZ6EtRaJkdSJNtekh4m1PspE=',
-      price: '₹130.00',
-      old: '₹80.00',
-      qty: '1 kg',
-      rate: '1',
-      sold: '1.5k',
-      fav: true,
+      title: '2nd order',
+      dis: '30',
+      above: `on order above ${STRING.APP_CURRENCY}150`,
+      code: '20GD#5',
     },
     {
-      name: 'test 3',
-      image:
-        'https://media.istockphoto.com/id/171575811/photo/guava.jpg?s=612x612&w=0&k=20&c=cjVDpisFrT8JlqFbSEImkfsXgQbtrNCdSTILGAzIj2Q=',
-      price: '₹50.00',
-      old: '₹700.00',
-      rate: '3',
-      sold: '3.2k',
-      qty: '3 kg',
-      fav: true,
+      title: '3rd order',
+      dis: '20',
+      above: `on order above ${STRING.APP_CURRENCY}120`,
+      code: '1354GF',
     },
     {
-      name: 'test 4',
-      image:
-        'https://media.istockphoto.com/id/467328250/photo/mango.jpg?s=612x612&w=0&k=20&c=cYSHeExkHZVYQM6xkWehclgYDqkmB7o4E494xz5GbXs=',
-      price: '₹1050.00',
-      qty: '4 kg',
-      old: '₹500.00',
-      rate: '4',
-      sold: '11.5k',
-      fav: true,
+      title: 'New order',
+      dis: '10',
+      above: `on order above ${STRING.APP_CURRENCY}125`,
+      code: 'FFF455',
+    },
+
+    {
+      title: '1st order',
+      dis: '50',
+      above: `on order above ${STRING.APP_CURRENCY}340`,
+      code: '45FS#5',
+    },
+    {
+      title: '2nd order',
+      dis: '30',
+      above: `on order above ${STRING.APP_CURRENCY}150`,
+      code: '20GD#5',
+    },
+    {
+      title: '3rd order',
+      dis: '20',
+      above: `on order above ${STRING.APP_CURRENCY}120`,
+      code: '1354GF',
+    },
+    {
+      title: 'New order',
+      dis: '10',
+      above: `on order above ${STRING.APP_CURRENCY}125`,
+      code: 'FFF455',
+    },
+
+    {
+      title: '1st order',
+      dis: '50',
+      above: `on order above ${STRING.APP_CURRENCY}340`,
+      code: '45FS#5',
+    },
+    {
+      title: '2nd order',
+      dis: '30',
+      above: `on order above ${STRING.APP_CURRENCY}150`,
+      code: '20GD#5',
+    },
+    {
+      title: '3rd order',
+      dis: '20',
+      above: `on order above ${STRING.APP_CURRENCY}120`,
+      code: '1354GF',
+    },
+    {
+      title: 'New order',
+      dis: '10',
+      above: `on order above ${STRING.APP_CURRENCY}125`,
+      code: 'FFF455',
     },
   ]);
 
-  const renderItem = ({item, index}) => {
+  const [show, setShow] = useState(false);
+  const [showAfter, setShowAfter] = useState({});
+  const [text, setText] = useState('Copy Code');
+
+  const closeSignUpModal = () => {
+    setShow(!show);
+    setText('Copy Code');
+  };
+
+  const renderOfferModal = () => {
     return (
-      <TouchableOpacity
-        style={styles.itemWrapper}
-        activeOpacity={0.8}
-        onPress={() => {
-          navigation.navigate('ProductDetail', {item: item});
+      <Modal
+        visible={show}
+        animationType="slide"
+        style={{flexGrow: 1}}
+        transparent={true}
+        onRequestClose={() => {
+          closeSignUpModal();
         }}>
-        <Image
-          style={styles.itemImage}
-          source={{
-            uri: item?.image,
-          }}
-        />
-        <AntDesign
-          style={{
-            position: 'absolute',
-            top: 10,
-            right: 10,
-          }}
-          name={item?.fav ? 'heart' : 'hearto'}
-          color={item?.fav ? COLORS.bitter_sweet : COLORS.grey}
-          size={20}
-          onPress={() => onFavClick(index)}
-        />
         <View
-          style={{
-            marginHorizontal: 8,
-          }}>
-          <Text style={styles.itemName} numberOfLines={1}>
-            {item?.name}
-          </Text>
-          <View style={GlobalStyle.flexRowAlignCenter}>
-            <Text style={styles.itemPrice}>{item?.price}</Text>
-            <Text style={styles.itemOriPrice}>{item?.price}</Text>
+          style={[
+            GlobalStyle.signupModalBg,
+            {
+              backgroundColor: '#00000090',
+            },
+          ]}>
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => {}}
+            style={GlobalStyle.signupModalBgTrans}></TouchableOpacity>
+          <View
+            style={[
+              GlobalStyle.loginModalBg,
+              {
+                paddingHorizontal: 0,
+                maxHeight: SIZES.height * 0.7,
+                padding: 0,
+              },
+            ]}>
+            <View
+              style={{
+                height: 170,
+                width: '100%',
+                backgroundColor: COLORS.colorPrimary,
+                borderTopLeftRadius: 25,
+                borderTopRightRadius: 25,
+                padding: 20,
+              }}>
+              <Text
+                style={{
+                  fontSize: 22,
+                  fontFamily: 'OpenSans-Bold',
+                  color: COLORS.white,
+                }}>
+                Flat {showAfter?.dis}% OFF
+              </Text>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontFamily: 'OpenSans-Medium',
+                  color: COLORS.white,
+                }}>
+                {showAfter?.above}
+              </Text>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingVertical: 15,
+                  borderRadius: 5,
+                  marginTop: 20,
+                  paddingHorizontal: 10,
+                  backgroundColor: '#00000040',
+                  justifyContent: 'space-between',
+                }}>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontFamily: 'OpenSans-Medium',
+                    color: COLORS.white,
+                  }}>
+                  Code: {showAfter?.code}
+                </Text>
+                <Text
+                  onPress={() => {
+                    setText('Copied');
+                    ShowToastMessage('Copied Successful');
+                    closeSignUpModal();
+                  }}
+                  style={{
+                    fontSize: 16,
+                    fontFamily: 'OpenSans-Medium',
+                    color: COLORS.colorPrimary,
+                    backgroundColor: COLORS.white,
+                    paddingHorizontal: 15,
+                    paddingVertical: 5,
+                    borderRadius: 25,
+                  }}>
+                  {text}
+                </Text>
+              </View>
+            </View>
+
+            <Text
+              style={{
+                fontSize: 16,
+                fontFamily: 'OpenSans-Medium',
+                color: COLORS.grey,
+                marginStart: 20,
+                marginTop: 20,
+              }}>
+              {STRING.terms_conditions}
+            </Text>
+            <Text
+              style={{
+                fontSize: 14,
+                fontFamily: 'OpenSans-Medium',
+                color: COLORS.grey,
+                marginStart: 20,
+                marginEnd: 10,
+                marginTop: 20,
+              }}>
+              1.In publishing and graphic design, Lorem ipsum is a placeholder
+              text commonly used to demonstrate the visual form of a document or
+              a typeface without relying on meaningful content. Lorem ipsum may
+              be used as a placeholder before final copy is available.
+            </Text>
+            <Text
+              style={{
+                fontSize: 14,
+                fontFamily: 'OpenSans-Medium',
+                color: COLORS.grey,
+                marginStart: 20,
+                marginEnd: 10,
+                marginTop: 10,
+              }}>
+              2.In publishing and graphic design, Lorem ipsum is a placeholder
+              text commonly used to demonstrate the visual form of a document or
+              a typeface without relying on meaningful content.
+            </Text>
           </View>
         </View>
-        <Text style={styles.offerText} numberOfLines={1}>
-          {item?.rate}% off
-        </Text>
-        {/*<Text*/}
-        {/*  style={{*/}
-        {/*    fontFamily: 'OpenSans-SemiBold',*/}
-        {/*    fontSize: 11,*/}
-        {/*    color: COLORS.red,*/}
-        {/*    position: 'absolute',*/}
-        {/*    left: 0,*/}
-        {/*    top: 0,*/}
-        {/*    padding: 3,*/}
-        {/*    borderTopLeftRadius: 5,*/}
-        {/*    borderTopRightRadius: 5,*/}
-        {/*    borderBottomRightRadius: 5,*/}
-        {/*  }}*/}
-        {/*  numberOfLines={1}>*/}
-        {/*  Out of stock*/}
-        {/*</Text>*/}
-      </TouchableOpacity>
+      </Modal>
+    );
+  };
+
+  const renderItem = ({item, index}) => {
+    return (
+      <View>
+        <TouchableOpacity
+          style={styles.itemWrapper}
+          activeOpacity={0.8}
+          onPress={() => {
+            setShowAfter(item);
+            closeSignUpModal();
+          }}>
+          <Text
+            style={{
+              fontSize: 30,
+              fontFamily: 'OpenSans-Bold',
+              color: COLORS.colorPrimary,
+            }}>
+            {item?.dis}
+          </Text>
+          <View>
+            <Text
+              style={{
+                fontSize: 14,
+                fontFamily: 'OpenSans-Medium',
+                color: COLORS.colorPrimary,
+              }}>
+              %
+            </Text>
+            <Text
+              style={{
+                fontSize: 14,
+                fontFamily: 'OpenSans-Medium',
+                color: COLORS.colorPrimary,
+              }}>
+              OFF
+            </Text>
+          </View>
+          <View
+            style={{
+              marginHorizontal: 10,
+            }}>
+            <Text
+              style={{
+                fontSize: 14,
+                fontFamily: 'OpenSans-Bold',
+                color: COLORS.black,
+              }}>
+              {item?.title}
+            </Text>
+            <Text
+              style={{
+                fontSize: 14,
+                fontFamily: 'OpenSans-Regular',
+                color: COLORS.grey,
+              }}>
+              {item?.above}
+            </Text>
+          </View>
+          <View
+            style={{
+              marginStart: 'auto',
+              marginEnd: 'auto',
+            }}>
+            <View style={styles.lineHeight} />
+            <View style={styles.lineHeight} />
+            <View style={styles.lineHeight} />
+            <View style={styles.lineHeight} />
+          </View>
+          <View
+            style={{
+              marginStart: 'auto',
+              marginEnd: 3,
+              alignItems: 'center',
+            }}>
+            <Text
+              style={{
+                fontSize: 14,
+                fontFamily: 'OpenSans-Regular',
+                color: COLORS.black,
+              }}>
+              Use Code:
+            </Text>
+            <Text
+              style={{
+                fontSize: 16,
+                fontFamily: 'OpenSans-Medium',
+                color: COLORS.white,
+                backgroundColor: COLORS.colorPrimary,
+                textAlign: 'center',
+                textAlignVertical: 'center',
+                borderRadius: 50,
+                marginTop: 5,
+                paddingHorizontal: 10,
+              }}>
+              {item?.code}
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <View
+          style={{
+            height: 10,
+            width: 10,
+            borderRadius: 15,
+            backgroundColor: theme?.colors?.bg_color,
+
+            position: 'absolute',
+            top: 18,
+            left: 5,
+          }}></View>
+        <View
+          style={{
+            height: 10,
+            width: 10,
+            borderRadius: 15,
+            backgroundColor: theme?.colors?.bg_color,
+
+            position: 'absolute',
+            top: 36,
+            left: 5,
+          }}></View>
+
+        <View
+          style={{
+            height: 10,
+            width: 10,
+            borderRadius: 15,
+            backgroundColor: theme?.colors?.bg_color,
+
+            position: 'absolute',
+            top: 54,
+            left: 5,
+          }}></View>
+
+        <View
+          style={{
+            height: 10,
+            width: 10,
+            borderRadius: 15,
+            backgroundColor: theme?.colors?.bg_color,
+
+            position: 'absolute',
+            top: 18,
+            right: 5,
+          }}></View>
+        <View
+          style={{
+            height: 10,
+            width: 10,
+            borderRadius: 15,
+            backgroundColor: theme?.colors?.bg_color,
+
+            position: 'absolute',
+            top: 36,
+            right: 5,
+          }}></View>
+
+        <View
+          style={{
+            height: 10,
+            width: 10,
+            borderRadius: 15,
+            backgroundColor: theme?.colors?.bg_color,
+
+            position: 'absolute',
+            top: 54,
+            right: 5,
+          }}></View>
+
+        <View
+          style={{
+            height: 15,
+            width: 15,
+            borderRadius: 15,
+            backgroundColor: theme?.colors?.bg_color,
+
+            position: 'absolute',
+            right: 107,
+            top: 2.5,
+          }}></View>
+        <View
+          style={{
+            height: 15,
+            width: 15,
+            borderRadius: 15,
+            backgroundColor: theme?.colors?.bg_color,
+            position: 'absolute',
+            right: 107,
+            bottom: 2.5,
+          }}></View>
+      </View>
     );
   };
 
@@ -143,47 +453,39 @@ const Favorite = ({navigation}) => {
       style={[
         GlobalStyle.mainContainerBgColor,
         {
-          backgroundColor: COLORS.bg_color,
+          backgroundColor: theme?.colors?.bg_color_onBoard,
         },
       ]}>
-      <View style={GlobalStyle.commonToolbarBG}>
-        <Image source={images.app_logo} style={GlobalStyle.toolbarAppIcon} />
-        <VegUrbanCommonToolBar title={STRING.hi_user} />
+      <View
+        style={[
+          GlobalStyle.commonToolbarBG,
+          {
+            backgroundColor: theme?.colors?.bg_color_onBoard,
+          },
+        ]}>
         <ToolBarIcon
           title={Ionicons}
-          iconName={'search'}
-          icSize={20}
-          icColor={COLORS.colorPrimary}
-          style={{
-            marginEnd: 0,
-          }}
-          onPress={() => {
-            navigation.navigate('Search');
-          }}
-        />
-        <ToolBarIcon
-          title={Ionicons}
-          iconName={'person'}
+          iconName={'chevron-back'}
           icSize={20}
           icColor={COLORS.colorPrimary}
           style={{
             marginEnd: 10,
+            backgroundColor: theme?.colors?.toolbar_icon_bg,
           }}
           onPress={() => {
-            navigation.navigate('Profile');
+            navigation.goBack();
+          }}
+        />
+        <VegUrbanCommonToolBar
+          title={STRING.offers}
+          style={{
+            backgroundColor: theme.colors.bg_color_onBoard,
+          }}
+          textStyle={{
+            color: theme.colors.textColor,
           }}
         />
       </View>
-      {/*<View style={GlobalStyle.alignJustifyCenter}>*/}
-      {/*  <AntDesign name={'heart'} size={80} color={COLORS.gray} />*/}
-      {/*  <Text style={styles.no_wish}>{STRING.no_wish_list_found}</Text>*/}
-      {/*  <Text style={styles.no_wish_item}>*/}
-      {/*    {STRING.you_have_no_wish_list_items_yet}*/}
-      {/*  </Text>*/}
-      {/*  <Text style={styles.no_wish_item}>*/}
-      {/*    {STRING.tap_the_heart_shape_of_items_to_add_one}*/}
-      {/*  </Text>*/}
-      {/*</View>*/}
 
       <FlatList
         style={{
@@ -198,7 +500,6 @@ const Favorite = ({navigation}) => {
         }}
         showsVerticalScrollIndicator={false}
         data={favData}
-        numColumns={2}
         // renderItem={({item, index}) => (
         //   <FavoriteProductItem
         //     item={item}
@@ -207,11 +508,12 @@ const Favorite = ({navigation}) => {
         // )}
         renderItem={renderItem}
       />
+      {renderOfferModal()}
     </SafeAreaView>
   );
 };
 
-export default Favorite;
+export default Offers;
 
 const styles = StyleSheet.create({
   no_wish: {
@@ -228,13 +530,21 @@ const styles = StyleSheet.create({
     color: COLORS.gray,
     fontSize: 16,
   },
+  lineHeight: {
+    width: 1,
+    height: 5,
+    backgroundColor: COLORS.colorPrimary,
+    margin: 3,
+  },
   itemWrapper: {
     flex: 1,
-    margin: 5,
-    backgroundColor: COLORS.white,
+    margin: 10,
+    padding: 10,
+    // backgroundColor: COLORS.color1,
+    backgroundColor: COLORS.color1,
     borderRadius: 5,
-    maxWidth: SIZES.width / 2 - 10,
-    paddingBottom: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   itemImage: {
     width: '100%',

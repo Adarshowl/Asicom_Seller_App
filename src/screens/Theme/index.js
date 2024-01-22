@@ -1,12 +1,12 @@
 import {
-  FlatList,
+  Image,
   SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import GlobalStyle from '../../styles/GlobalStyle';
 import {STRING} from '../../constants';
 import VegUrbanCommonToolBar from '../../utils/VegUrbanCommonToolBar';
@@ -14,68 +14,30 @@ import ToolBarIcon from '../../utils/ToolBarIcon';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {COLORS} from '../../constants/Colors';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {ShowToastMessage} from '../../utils/Utility';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useTranslation} from 'react-i18next';
 import '../../assets/i18n/i18n';
-import RNRestart from 'react-native-restart';
+import {EventRegister} from 'react-native-event-listeners';
+import themeContext from '../../constants/themeContext';
+import {Switch} from 'react-native-elements';
 
-const Language = ({navigation}) => {
-  const {t, i18n} = useTranslation();
-
-  const [currentLanguage, setLanguage] = useState('en');
-
-  const changeLanguage = value => {
-    i18n
-      .changeLanguage(value)
-      .then(() => setLanguage(value))
-      .catch(err => console.log(err));
-  };
-  const onFavClick = idx => {
-    let a = favData.map((item, index) => {
-      let temp = Object.assign({}, item);
-      if (index == idx) {
-        temp.fav = !temp.fav;
-      }
-      // ShowToastMessage('HI CLIXK' + temp.fav);
-
-      return temp;
-    });
-
-    setFavData(a);
-  };
-
+const Theme = ({navigation}) => {
+  const theme = useContext(themeContext);
   const [favData, setFavData] = useState([
-    {name: 'English', code: 'en', selected: false},
-    {name: 'हिंदी', code: 'hi', selected: false},
-    {name: 'Chinese', code: 'zh', selected: false},
-    {name: 'Japanese', code: 'ja', selected: false},
-    {name: 'German', code: 'de', selected: false},
-    {name: 'French', code: 'fr', selected: false},
-    {name: 'Russian', code: 'ru', selected: false},
-    {name: 'Arabic', code: 'ar', selected: false},
+    {name: 'Light', code: 'light', selected: false},
+    {name: 'Dark Mode', code: 'dark', selected: false},
   ]);
   const onItemClick = idx => {
     let a = favData.map((item, index) => {
       let temp = Object.assign({}, item);
       if (index == idx) {
-        if (temp?.name == 'English') {
-          changeLanguage(temp?.code);
-          AsyncStorage.setItem(STRING.app_lang, temp?.code + '');
-          temp.selected = !temp.selected;
-          ShowToastMessage(`App language changed to ${temp?.name}`);
-          RNRestart.restart();
-        } else if (temp?.name == 'हिंदी') {
-          changeLanguage(temp?.code);
-          AsyncStorage.setItem(STRING.app_lang, temp?.code + '');
-          temp.selected = !temp.selected;
-          ShowToastMessage(`App language changed to ${temp?.name}`);
-          RNRestart.restart();
-        } else {
-          ShowToastMessage(`Language not supported NOW!!!!`);
-          ShowToastMessage(`Please select English / हिंदी for now`);
-          changeLanguage(currentLanguage);
-        }
+        AsyncStorage.setItem(STRING.app_theme, temp?.code + '');
+        STRING.APP_THEME = temp?.code + '';
+
+        EventRegister.emit(
+          STRING.app_theme,
+          temp?.code == 'dark' ? true : false,
+        );
+        temp.selected = true;
       } else {
         temp.selected = false;
       }
@@ -84,27 +46,18 @@ const Language = ({navigation}) => {
 
     setFavData(a);
   };
-
   const getUserFromStorage = async () => {
     try {
-      await AsyncStorage.getItem(STRING.app_lang, (error, value) => {
+      await AsyncStorage.getItem(STRING.app_theme, (error, value) => {
         if (error) {
         } else {
           if (value !== null) {
-            STRING.APP_LANGUAGE = value;
-            let a = favData.map((item, index) => {
-              let temp = Object.assign({}, item);
-              console.log(temp?.code == value);
-              setLanguage(value);
-              if (temp?.code == value) {
-                temp.selected = !temp.selected;
-              }
-              return temp;
-            });
-
-            setFavData(a);
+            if (value == 'true') {
+              setLightMode(true);
+            } else {
+              setLightMode(false);
+            }
           } else {
-            STRING.APP_LANGUAGE = 'en';
           }
         }
       });
@@ -119,8 +72,13 @@ const Language = ({navigation}) => {
   const renderItem = ({item, index}) => {
     return (
       <TouchableOpacity
+        style={[
+          styles.wrapper,
+          {
+            backgroundColor: theme?.colors?.bg_color,
+          },
+        ]}
         activeOpacity={0.9}
-        style={[styles.wrapper]}
         onPress={() => {
           onItemClick(index);
         }}>
@@ -128,14 +86,31 @@ const Language = ({navigation}) => {
           <MaterialCommunityIcons
             name={item?.selected ? 'circle-slice-8' : 'circle-outline'}
             size={22}
-            color={COLORS.colorPrimary}
+            color={theme?.colors?.colorPrimary}
           />
-          <Text style={styles.textName}>{item?.name}</Text>
-          <Text style={styles.textSymbol}>{item?.symbol}</Text>
+          <Text
+            style={[
+              styles.textName,
+              {
+                color: theme?.colors?.white,
+              },
+            ]}>
+            {item?.name}
+          </Text>
+          <Text style={[styles.textSymbol, {color: theme?.colors?.white}]}>
+            {item?.symbol}
+          </Text>
         </View>
         <View style={styles.divLine} />
       </TouchableOpacity>
     );
+  };
+
+  const [lightMode, setLightMode] = useState(false);
+  const [checked, setChecked] = useState(false);
+
+  const toggleSwitch = () => {
+    setChecked(!checked);
   };
 
   return (
@@ -143,10 +118,16 @@ const Language = ({navigation}) => {
       style={[
         GlobalStyle.mainContainerBgColor,
         {
-          backgroundColor: COLORS.bg_color,
+          backgroundColor: theme?.colors?.bg_color_onBoard,
         },
       ]}>
-      <View style={GlobalStyle.commonToolbarBG}>
+      <View
+        style={[
+          GlobalStyle.commonToolbarBG,
+          {
+            backgroundColor: theme?.colors?.bg_color_onBoard,
+          },
+        ]}>
         <ToolBarIcon
           title={Ionicons}
           iconName={'chevron-back'}
@@ -154,66 +135,83 @@ const Language = ({navigation}) => {
           icColor={COLORS.colorPrimary}
           style={{
             marginEnd: 10,
+            backgroundColor: theme?.colors?.toolbar_icon_bg,
           }}
           onPress={() => {
             navigation.goBack();
           }}
         />
-        <VegUrbanCommonToolBar title={STRING.currency + ' Changer'} />
+        <VegUrbanCommonToolBar
+          title={STRING.theme + ' Changer'}
+          style={{
+            backgroundColor: theme.colors.bg_color_onBoard,
+          }}
+          textStyle={{
+            color: theme.colors.textColor,
+          }}
+        />
       </View>
 
-      <FlatList
+      {/*<FlatList*/}
+      {/*  style={{*/}
+      {/*    paddingStart: 5,*/}
+      {/*    paddingEnd: 5,*/}
+      {/*  }}*/}
+      {/*  ListHeaderComponent={() => {*/}
+      {/*    return <View style={{}} />;*/}
+      {/*  }}*/}
+      {/*  ListHeaderComponentStyle={{*/}
+      {/*    paddingTop: 8,*/}
+      {/*  }}*/}
+      {/*  showsVerticalScrollIndicator={false}*/}
+      {/*  data={favData}*/}
+      {/*  renderItem={renderItem}*/}
+      {/*/>*/}
+
+      <Image
+        source={{
+          uri: lightMode
+            ? 'https://cdn-icons-png.flaticon.com/128/702/702814.png'
+            : 'https://cdn-icons-png.flaticon.com/128/566/566461.png',
+        }}
         style={{
-          paddingStart: 5,
-          paddingEnd: 5,
+          height: 100,
+          width: 100,
+          alignSelf: 'center',
+          marginVertical: 50,
         }}
-        ListHeaderComponent={() => {
-          return <View style={{}} />;
-        }}
-        ListHeaderComponentStyle={{
-          paddingTop: 8,
-        }}
-        showsVerticalScrollIndicator={false}
-        data={favData}
-        renderItem={renderItem}
       />
 
-      {/*<View*/}
-      {/*  style={{*/}
-      {/*    flex: 1,*/}
-      {/*    backgroundColor: 'white',*/}
-      {/*    alignItems: 'center',*/}
-      {/*    justifyContent: 'space-evenly',*/}
-      {/*  }}>*/}
-      {/*  <Text style={{fontWeight: 'bold', fontSize: 25, color: '#33A850'}}>*/}
-      {/*    {t('january')}*/}
-      {/*    {t('hello')} {t('person')}{' '}*/}
-      {/*  </Text>*/}
-      {/*  <Text style={{fontWeight: 'bold', fontSize: 25, color: '#33A850'}}>*/}
-      {/*    {t('this line is translated')}*/}
-      {/*  </Text>*/}
-      {/*  <Pressable*/}
-      {/*    onPress={() => changeLanguage('en')}*/}
-      {/*    style={{*/}
-      {/*      backgroundColor: currentLanguage === 'en' ? '#33A850' : '#d3d3d3',*/}
-      {/*      padding: 20,*/}
-      {/*    }}>*/}
-      {/*    <Text>Select English</Text>*/}
-      {/*  </Pressable>*/}
-      {/*  <Pressable*/}
-      {/*    onPress={() => changeLanguage('hi')}*/}
-      {/*    style={{*/}
-      {/*      backgroundColor: currentLanguage === 'hi' ? '#33A850' : '#d3d3d3',*/}
-      {/*      padding: 20,*/}
-      {/*    }}>*/}
-      {/*    <Text>हिंदी का चयन करें</Text>*/}
-      {/*  </Pressable>*/}
-      {/*</View>*/}
+      <Text
+        style={[
+          styles.textSymbol,
+          {
+            color: theme?.colors?.white,
+            alignSelf: 'center',
+            marginVertical: 20,
+          },
+        ]}>
+        Lights are {lightMode ? 'off!!' : 'on!!'}
+      </Text>
+      <Switch
+        style={{
+          alignSelf: 'center',
+        }}
+        value={!lightMode}
+        onValueChange={value => {
+          setLightMode(prev => !prev);
+          EventRegister.emit(STRING.app_theme, lightMode ? false : true);
+          AsyncStorage.setItem(
+            STRING.app_theme,
+            lightMode ? false + '' : true + '',
+          );
+        }}
+      />
     </SafeAreaView>
   );
 };
 
-export default Language;
+export default Theme;
 
 const styles = StyleSheet.create({
   wrapper: {
